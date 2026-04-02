@@ -1,3 +1,5 @@
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,82 +9,109 @@ import java.util.Scanner;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 
-public class ProductWriter {
-    public static void main(String[] args) {
+public class ProductWriter extends JFrame{
+    JPanel titlePnl = new JPanel();
+    JPanel infoPnl = new JPanel();
+    JPanel buttonPnl = new JPanel();
+    JTextField nameTF = new JTextField(10);
+    JTextField descriptionTF = new JTextField(10);
+    JTextField idTF = new JTextField(10);
+    JTextField costTF = new JTextField(10);
+    JTextArea resultsTA = new JTextArea(10,40);
+    JTextField recordCountTF = new JTextField(10);
 
+    int recordCount = 0;
+    public ProductWriter(){
+        setTitle("Product Writer");
+        setSize(600,500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-        Scanner in = new Scanner(System.in);
-        Product product;
+        //Title Panel//
+        JLabel titleLbl = new JLabel("Enter your product information");
+        titleLbl.setHorizontalTextPosition(JLabel.CENTER);
+        titleLbl.setVerticalTextPosition(JLabel.BOTTOM);
+        titleLbl.setFont(titleLbl.getFont().deriveFont(24f));
+        titlePnl.add(titleLbl);
+        add(titlePnl, BorderLayout.NORTH);
 
-        ArrayList<Product> recs = new ArrayList<>();
+        //Info Panel//
+        infoPnl.add(new JLabel("ID:"));
+        infoPnl.add(idTF);
+        infoPnl.setLayout(new GridLayout(5,2));
+        infoPnl.add(new JLabel("Name:"));
+        infoPnl.add(nameTF);
+        infoPnl.add(new JLabel("Description:"));
+        infoPnl.add(descriptionTF);
+        infoPnl.add(new JLabel("Cost:"));
+        infoPnl.add(costTF);
+        infoPnl.add(new JLabel("Record Count:"));
+        infoPnl.add(recordCountTF);
+        recordCountTF.setEditable(false);
 
-        String id;
-        String name;
-        String description;
-        double cost;
+        //Results Panel//
+        JPanel resultsPnl = new JPanel();
+        resultsTA.setEditable(false);
+        JScrollPane resultsSP = new JScrollPane(resultsTA);
+        resultsPnl.add(resultsSP);
 
-        String rec;
+        //Center Panel//
+        JPanel CenterPnl = new JPanel();
+        CenterPnl.setLayout(new BorderLayout());
+        CenterPnl.add(infoPnl, BorderLayout.NORTH);
+        CenterPnl.add(resultsPnl, BorderLayout.CENTER);
+        add(CenterPnl, BorderLayout.CENTER);
 
-        boolean done = false;
+        //Button Panel//
+        buttonPnl.setLayout(new GridLayout(1,2));
+        JButton submitBtn = new JButton("Submit");
+        submitBtn.addActionListener(e -> {
+            String id = idTF.getText();
+            String name = nameTF.getText();
+            String description = descriptionTF.getText();
+            double cost = Double.parseDouble(costTF.getText());
 
-        do {
+            Product product = new Product(id, name, description, cost);
 
-            id = SafeInput.getNonZeroLenString(in, "Enter the ID: ");
-            name = SafeInput.getNonZeroLenString(in, "Enter the name of the product: ");
-            description = SafeInput.getNonZeroLenString(in, "Enter the description: ");
-            cost = SafeInput.getDouble(in, "How much does it cost?: ");
-
-            product = new Product( id, name, description, cost);
-
-
-            recs.add(product);
-
-            done = SafeInput.getYNConfirm(in, "Are you done? ");
-
-
-        }while(!done);
-
-        File workingDirectory = new File(System.getProperty("user.dir"));
-        Path file = Paths.get(workingDirectory.getPath() + "\\src\\ProductTestData.txt");
-
-        try
-        {
-            // Typical java pattern of inherited classes
-            // we wrap a BufferedWriter around a lower level BufferedOutputStream
-            OutputStream out =
-                    new BufferedOutputStream(Files.newOutputStream(file, CREATE));
-            BufferedWriter writer =
-                    new BufferedWriter(new OutputStreamWriter(out));
-
-            // Finally can write the file LOL!
-
-            for(Product r : recs)
-            {
-                writer.write(r.toCSVDataString(), 0, r.toCSVDataString().length());  // stupid syntax for write rec
-                // 0 is where to start (1st char) the write
-                // rec. length() is how many chars to write (all)
-                writer.newLine();  // adds the new line
-
-/*
-                writer.write(r.toJSONDataString(), 0, r.toJSONDataString().length());  // stupid syntax for write rec
-                // 0 is where to start (1st char) the write
-                // rec. length() is how many chars to write (all)
-                writer.newLine();  // adds the new line
-
-                writer.write(r.toXmlDataString(), 0, r.toXmlDataString().length());  // stupid syntax for write rec
-                // 0 is where to start (1st char) the write
-                // rec. length() is how many chars to write (all)
-                writer.newLine();  // adds the new line
-*/
-
+            try {
+                RandomAccessFile raf = new RandomAccessFile("products.bin", "rw");
+                raf.seek(raf.length());
+                raf.writeChars(product.getPaddedID());
+                raf.writeChars(product.getPaddedName());
+                raf.writeChars(product.getPaddedDescription());
+                raf.writeDouble(product.getCost());
+                raf.close();
+                resultsTA.setText("Item Added!");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                resultsTA.setText("Error writing to file.");
             }
-            writer.close(); // must close the file to seal it and flush buffer
-            System.out.println("Data file written!");
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+            recordCount++;
+            recordCountTF.setText(String.valueOf(recordCount));
+            idTF.setText("");
+            nameTF.setText("");
+            descriptionTF.setText("");
+            costTF.setText("");
+
+        });
+        buttonPnl.add(submitBtn);
+        JButton quitBtn = new JButton("Quit");
+        quitBtn.addActionListener(e -> {
+            int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?");
+            if (response == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+        buttonPnl.add(quitBtn);
+        add(buttonPnl, BorderLayout.SOUTH);
+
+
+    }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            ProductWriter pw = new ProductWriter();
+            pw.setVisible(true);
+        });
 
     }
 

@@ -1,8 +1,13 @@
-public class Product {
-    private String id;
-    private String name;
-    private String description;
-    private double cost;
+import java.io.Serializable;
+
+public class Product implements Serializable {
+    public String id;
+    public String name;
+    public String description;
+    public double cost;
+    public static final int ID_LENGTH = 6;
+    public static final int NAME_LENGTH = 35;
+    public static final int DESCRIPTION_LENGTH = 75;
 
     public Product(String id, String name, String description, double cost) {
         this.id = id;
@@ -41,6 +46,20 @@ public class Product {
 
     public void setCost(double cost) {
         this.cost = cost;
+    }
+
+    public String getPaddedID(){
+        return String.format("%-" + ID_LENGTH + "s", id);
+    }
+    public String getPaddedName(){
+        return String.format("%-" + NAME_LENGTH + "s", name);
+    }
+    public String getPaddedDescription(){
+        return String.format("%-" + DESCRIPTION_LENGTH + "s", description);
+    }
+
+    public String toRecordString(){
+        return getPaddedID() + getPaddedName() + getPaddedDescription() + String.format("%8.2f", cost);
     }
 
     @Override

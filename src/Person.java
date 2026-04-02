@@ -6,6 +6,12 @@ public class Person {
     private String title;
     private int yearOfBirth;
 
+    public static final int ID_LENGTH = 6;
+    public static final int FIRSTNAME_LENGTH = 35;
+    public static final int LASTNAME_LENGTH = 35;
+    public static final int TITLE_LENGTH = 35;
+    public static final int YEAR_OF_BIRTH_LENGTH = 4;
+
     public Person(String id, String firstName, String lastName, String title, int yearOfBirth) {
         this.id = id;
         this.firstName = firstName;
@@ -52,6 +58,26 @@ public class Person {
 
     public void setYearOfBirth(int yearOfBirth) {
         this.yearOfBirth = yearOfBirth;
+    }
+
+    public String getPaddedID(){
+        return String.format("%-" + ID_LENGTH + "s", id);
+    }
+    public String getPaddedFirstName(){
+        return String.format("%-" + FIRSTNAME_LENGTH + "s", firstName);
+    }
+    public String getPaddedLastName(){
+        return String.format("%-" + LASTNAME_LENGTH + "s", lastName);
+    }
+    public String getPaddedTitle(){
+        return String.format("%-" + TITLE_LENGTH + "s", title);
+    }
+    public String getPaddedYearOfBirth(){
+        return String.format("%-" + YEAR_OF_BIRTH_LENGTH + "s", yearOfBirth);
+    }
+
+    public String toRecordString(){
+        return getPaddedID() + getPaddedFirstName() + getPaddedLastName() + getPaddedTitle() + getPaddedYearOfBirth();
     }
 
     @Override

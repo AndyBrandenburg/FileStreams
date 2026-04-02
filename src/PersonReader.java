@@ -1,19 +1,13 @@
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.awt.*;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.nio.file.StandardOpenOption.CREATE;
 import java.util.ArrayList;
-import javax.swing.JFileChooser;
+import javax.swing.*;
 
 
 import static java.nio.file.StandardOpenOption.CREATE;
-
 public class PersonReader {
     public static void main(String[] args) {
         JFileChooser chooser = new JFileChooser();
